@@ -7,6 +7,7 @@ use image::{
 };
 
 mod constants;
+mod neighbours;
 
 pub fn build<P>(from: P, to: P) -> Result<(), ImageError>
 where
@@ -51,6 +52,10 @@ fn build_autotile_texture(image: &mut RgbImage) -> Result<RgbImage, ImageError> 
             let (sprite_x, sprite_y) = sprites
                 .get(*sprite_value as usize)
                 .expect("Could not load autotile sprite");
+            println!(
+                "Sprite: {:?}, {:?}, {:?}, {:?}",
+                sprite_x, sprite_y, sprite_width, sprite_height
+            );
             let current_sprite = crop(image, *sprite_x, *sprite_y, sprite_width, sprite_height);
 
             let x = m as u32 % 2;
@@ -61,7 +66,7 @@ fn build_autotile_texture(image: &mut RgbImage) -> Result<RgbImage, ImageError> 
 
             overlay(
                 &mut draw_image,
-                current_sprite.inner(),
+                &current_sprite.to_image(),
                 (x_pos * sprite_width * 2 + x * sprite_width) as i64,
                 (y_pos * sprite_height * 2 + y * sprite_height) as i64,
             )
@@ -74,7 +79,7 @@ fn build_autotile_texture(image: &mut RgbImage) -> Result<RgbImage, ImageError> 
 fn get_marching_tile_byte(neighbours: u8) -> u8 {
     let mut sample = 0;
     // top left corner
-    if neighbours & 0b11100000 == 0b11100000 {
+    if neighbours & 0b11010000 == 0b11010000 {
         sample += 1;
     }
     // North
@@ -82,7 +87,7 @@ fn get_marching_tile_byte(neighbours: u8) -> u8 {
         sample += 2;
     }
     // top right corner
-    if neighbours & 0b01110000 == 0b01110000 {
+    if neighbours & 0b01101000 == 0b01101000 {
         sample += 4;
     }
     // West
