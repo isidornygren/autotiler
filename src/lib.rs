@@ -10,9 +10,9 @@ mod constants;
 mod helpers;
 mod neighbours;
 
-pub use {helpers::get_marching_tile_position, neighbours::Neighbours};
+pub use {helpers::get_tile_position, neighbours::Neighbours};
 
-pub fn build<P>(from: P, to: P) -> Result<(), ImageError>
+pub fn build_from_file<P>(from: P, to: P) -> Result<(), ImageError>
 where
     P: AsRef<std::path::Path>,
 {
@@ -94,7 +94,7 @@ mod tests {
 
     #[test]
     fn it_opens_and_saves_an_autotile_texture() {
-        let results = build("input.png", "output.png");
+        let results = build_from_file("input.png", "output.png");
 
         assert!(results.is_ok());
     }

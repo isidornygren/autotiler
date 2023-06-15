@@ -1,4 +1,4 @@
-use autotiler::{build_autotile_texture, get_marching_tile_position, Neighbours};
+use autotiler::{build_autotile_texture, get_tile_position, Neighbours};
 use image::{
     imageops::{crop, overlay},
     ImageBuffer, ImageFormat, RgbImage,
@@ -94,7 +94,7 @@ fn main() {
                     maybe_tile.map_or(false, |tile| matches!(tile, Tile::Water))
                 }));
 
-                get_marching_tile_position(autotiler_neighbours)
+                get_tile_position(autotiler_neighbours)
             }
             Tile::Grass => (rng.gen_range(0..4), rng.gen_range(0..6)),
         };
