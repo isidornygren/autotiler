@@ -1,7 +1,11 @@
 [package]
 name = "autotiler"
 version = "1.0.0"
+authors = ["Isidor <me@isidornygren.com>"]
 edition = "2021"
+description = "An implementation of the autotiler algorithm"
+repository = "https://github.com/isidornygren/autotiler"
+license = "MIT"
 
 [dependencies]
 image = "0.24.6"
