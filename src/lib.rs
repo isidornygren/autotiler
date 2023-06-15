@@ -7,20 +7,23 @@ use image::{
 };
 
 mod constants;
+mod helpers;
 mod neighbours;
+
+pub use {helpers::get_marching_tile_position, neighbours::Neighbours};
 
 pub fn build<P>(from: P, to: P) -> Result<(), ImageError>
 where
     P: AsRef<std::path::Path>,
 {
-    let mut from_img = image::open(from)?.into_rgb8();
+    let mut from_img: image::ImageBuffer<image::Rgb<u8>, Vec<u8>> = image::open(from)?.into_rgb8();
     let built = build_autotile_texture(&mut from_img)?;
 
     built.save_with_format(to, ImageFormat::Png)?;
     Ok(())
 }
 
-fn build_autotile_texture(image: &mut RgbImage) -> Result<RgbImage, ImageError> {
+pub fn build_autotile_texture(image: &mut RgbImage) -> Result<RgbImage, ImageError> {
     if image.width() % 6 != 0
         || image.height() % 8 != 0
         || image.height() != ((image.width() / 6) * 8)
@@ -52,10 +55,7 @@ fn build_autotile_texture(image: &mut RgbImage) -> Result<RgbImage, ImageError> 
             let (sprite_x, sprite_y) = sprites
                 .get(*sprite_value as usize)
                 .expect("Could not load autotile sprite");
-            println!(
-                "Sprite: {:?}, {:?}, {:?}, {:?}",
-                sprite_x, sprite_y, sprite_width, sprite_height
-            );
+
             let current_sprite = crop(image, *sprite_x, *sprite_y, sprite_width, sprite_height);
 
             let x = m as u32 % 2;
@@ -74,49 +74,6 @@ fn build_autotile_texture(image: &mut RgbImage) -> Result<RgbImage, ImageError> 
     }
 
     Ok(draw_image)
-}
-
-fn get_marching_tile_byte(neighbours: u8) -> u8 {
-    let mut sample = 0;
-    // top left corner
-    if neighbours & 0b11010000 == 0b11010000 {
-        sample += 1;
-    }
-    // North
-    if neighbours & 0b01000000 == 0b01000000 {
-        sample += 2;
-    }
-    // top right corner
-    if neighbours & 0b01101000 == 0b01101000 {
-        sample += 4;
-    }
-    // West
-    if neighbours & 0b00010000 == 0b00010000 {
-        sample += 8;
-    }
-    // East
-    if neighbours & 0b00001000 == 0b00001000 {
-        sample += 16;
-    }
-    // bottom left corner
-    if neighbours & 0b00010110 == 0b00010110 {
-        sample += 32;
-    }
-    // South
-    if neighbours & 0b00000010 == 0b00000010 {
-        sample += 64;
-    }
-    // bottom right corner
-    if neighbours & 0b00001011 == 0b00001011 {
-        sample += 128;
-    }
-    sample
-}
-
-/// Input is a byte which represents [nw, n, ne, w, e, sw, s, se]
-pub fn get_marching_tile_index(neighbours: u8) -> u8 {
-    let index = get_marching_tile_byte(neighbours);
-    constants::MARCHING_TILES[index as usize]
 }
 
 #[cfg(test)]
@@ -140,20 +97,5 @@ mod tests {
         let results = build("input.png", "output.png");
 
         assert!(results.is_ok());
-    }
-
-    #[test]
-    fn it_should_get_marching_tile_index_with_all_ones() {
-        assert_eq!(get_marching_tile_byte(0xff), 0xff);
-    }
-
-    #[test]
-    fn it_should_get_marching_non_corner_tiles() {
-        assert_eq!(get_marching_tile_byte(0b01011010), 0x5a);
-    }
-
-    #[test]
-    fn it_should_get_marching_tile_index_with_all_zeroes() {
-        assert_eq!(get_marching_tile_byte(0x00), 0x00);
     }
 }
