@@ -29,9 +29,13 @@ fn get_marching_tile_byte(neighbours: &Neighbours) -> u8 {
     sample
 }
 
-pub fn get_tile_position(neighbours: Neighbours) -> (u8, u8) {
+pub fn get_tile_index(neighbours: Neighbours) -> u8 {
     let index = get_marching_tile_byte(&neighbours);
-    let img_index = constants::MARCHING_TILES[index as usize];
+    constants::MARCHING_TILES[index as usize]
+}
+
+pub fn get_tile_position(neighbours: Neighbours) -> (u8, u8) {
+    let img_index = get_tile_index(neighbours);
     let width = 8;
 
     let x = img_index % width;

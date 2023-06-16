@@ -10,7 +10,10 @@ mod constants;
 mod helpers;
 mod neighbours;
 
-pub use {helpers::get_tile_position, neighbours::Neighbours};
+pub use {
+    helpers::{get_tile_index, get_tile_position},
+    neighbours::Neighbours,
+};
 
 pub fn build_from_file<P>(from: P, to: P) -> Result<(), ImageError>
 where
